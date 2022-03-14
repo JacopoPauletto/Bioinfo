@@ -54,7 +54,7 @@ except OSError:
 
 
 random_seqs = sample(headerList,int(len(headerList)*float(percent_seqs)/(100)))
-outFile = open('my_fasta.txt','w')
+outFile = open('my_fasta.fa','w')
 for record in SeqIO.parse(inFile,'fasta') :
     if record.id in random_seqs:
         SeqIO.write(record, outFile, 'fasta')
