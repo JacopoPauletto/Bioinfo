@@ -13,6 +13,7 @@ from random import sample
 # In[2]:
 
 
+
 program = sys.argv[0]
 Path_FASTA = sys.argv[1]
 percent_seqs = sys.argv[2]
@@ -39,16 +40,28 @@ except OSError:
 headerList = []
 for record in SeqIO.parse(inFile,'fasta'):
     headerList.append(record.id)
+inFile.close()
 
 
 # In[5]:
 
 
-random_seqs = sample(headerList,int(len(headerList)*int(percent_seqs)/(100)))
+inFile = gzip.open(sys.argv[1], 'rt')
+try:
+    inFile.read(1)
+    inFile = gzip.open(sys.argv[1], 'rt') 
+except OSError:
+    inFile = open(sys.argv[1], 'rt')
+
+
+# In[6]:
+
+
+random_seqs = sample(headerList,int(len(headerList)*float(percent_seqs)/(100)))
 outFile = open('my_fasta.txt','w')
-for seq in SeqIO.parse(inFile,'fasta') :
-    if seq.id in random_seqs:
-        SeqIO.write(seq, outFile, 'fasta')
+for record in SeqIO.parse(inFile,'fasta') :
+    if record.id in random_seqs:
+        SeqIO.write(record, outFile, 'fasta')
     else :
         continue 
  
