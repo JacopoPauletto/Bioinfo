@@ -35,18 +35,19 @@ except OSError:
 headerList = []
 for record in SeqIO.parse(inFile,'fasta'):
     headerList.append(record.id)
-inFile.close()
+inFile.seek(0)
 
 
 
 
-
+"""
 inFile = gzip.open(sys.argv[1], 'rt')
 try:
     inFile.read(1)
     inFile = gzip.open(sys.argv[1], 'rt') 
 except OSError:
     inFile = open(sys.argv[1], 'rt')
+"""
 
 
 # In[6]:
