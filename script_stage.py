@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
 
 
 import gzip
@@ -10,7 +9,6 @@ from Bio import SeqIO
 from random import sample
 
 
-# In[2]:
 
 
 program = sys.argv[0]
@@ -22,7 +20,6 @@ print("Path al FASTA : " + Path_FASTA)
 print("Percent of sequences : " + percent_seqs) 
 
 
-# In[3]:
 
 
 inFile = gzip.open(sys.argv[1], 'rt')
@@ -33,15 +30,13 @@ except OSError:
     inFile = open(sys.argv[1], 'rt')
 
 
-# In[4]:
-
 
 headerList = []
 for record in SeqIO.parse(inFile,'fasta'):
     headerList.append(record.id)
 
 
-# In[5]:
+
 
 
 random_seqs = sample(headerList,int(len(headerList)*int(percent_seqs)/(100)))
