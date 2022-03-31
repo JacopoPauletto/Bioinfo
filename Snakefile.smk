@@ -4,12 +4,15 @@ from os.path import join as pjoin
 
 INPUT = config["inf"]
 WDIR = config["wdir"]
+HTSLIBDIR = config["htslibdir"]
 
-Ns = range(20)
 
 rule all:
    input:
-     pjoin(WDIR, "final-out.fa")
+     pjoin(WDIR, "output-{n}.fa"),
+     pjoin(WDIR, "moni-out.thrbv.ms"),
+     pjoin(WDIR, "bwa-out.bwt"),
+     pjoin(WDIR, "pingpong-out.bin")
 
 rule create_subfile:
     input:
@@ -21,33 +24,34 @@ rule create_subfile:
     shell:
         "python bioinformatica.py {input} {params.n} {wildcards.n} > {output.fa}"
 
-rule create_file:
-    input:
-        expand(pjoin(WDIR, "output-{n}.fa"), n = Ns)
-    output:
-        pjoin(WDIR, "final-out.fa")
-    shell:
-        ""
 rule moni_index:
     input:
-        pjoin(WDIR, "final-out.fa")
+        pjoin(WDIR, "output-{n}.fa")
     output:
-        pjoin(WDIR, "moni-out.txt")
+        pjoin(WDIR, "moni-out.thrbv.ms")
+    params:
+        bench = pjoin(WDIR, "moni-bench.txt")
     shell:
-        "moni build -r {input} -o {output} -f"
+        " \time -v -o {params.bench} moni build -r {input} -o {output} -f"
 
 rule bwa_index:
     input:
-        pjoin(WDIR, "final-out.fa")
+        pjoin(WDIR, "output-{n}.fa")
     output:
-        pjoin(WDIR, "bwa-out.txt")
+        pjoin(WDIR, "bwa-out.bwt")
+    params:
+        bench = pjoin(WDIR, "bwa-beanch.txt")
     shell:
-        "bwa index -a bwtsw {input.fa} > {output} "
+        " \time -v -o {params.bench} bwa index -a bwtsw {input.fa} > {output.bwt} "
 
 rule pingpong_index:
     input:
-        pjoin(WDIR, "final-out.fa")
+        HTSLIBDIR,
+        pjoin(WDIR, "output-{n}.fa")
     output:
-        pjoin(WDIR, "pingpong-out.txt")
+        pjoin(WDIR, "pingpong-out.bin")
+    params:
+        bench = pjoin(WDIR, "pingpong-bench.txt")
     shell:
-        "PingPong index --binary --fasta {input.fa} --index {output}"
+        "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{input}",
+        " \time -v -o {params.bench} PingPong index --fastq {input.fa} --index {output.bin}"
