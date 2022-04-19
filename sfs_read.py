@@ -1,8 +1,9 @@
 import sys
 import inspect
-from Bio import SeqIO
+from Bio import SeqIO 
 
-program = sys.argv[0]       
+
+program = sys.argv[0]                       
 path_to_sfs = sys.argv[1]   
 path_to_fq = sys.argv[2]
 
@@ -22,23 +23,10 @@ for line in inFile :
     sfs_dict[read_name].append(t) 
 inFile.close()
 
-"""
-seq = ''
-with open(sys.argv[2]) as fastq_file:
-   for record in SeqIO.parse(fastq_file, "fastq"):
-       seq = str(record.seq)
-       print(type(seq))
-       for key, value in sfs_dict.items() :
-         if record.id == key :
-            for element in value :
-                position = int(element[1])
-                for character in range(position,(position+int(element[2])-1)) :
-                    seq[character] = '_'
-       print(seq)                  
-       
-"""
 
 new_record = dict()
+outCSV = open('middle_file.csv', 'w')
+outFile = open('non_specific_read.fa', 'w')
 record_dict = SeqIO.to_dict(SeqIO.parse(sys.argv[2], "fastq"))
 for key, value in record_dict.items() :
     sequence = ''
@@ -47,14 +35,32 @@ for key, value in record_dict.items() :
             seq = list(value)
             for element in v :
                position = int(element[1])
-               for character in range(position,(position+int(element[2])-1)) :
+               for character in range(position,(position+int(element[2]))) :
                    seq[character] = '_'
     sequence = sequence.join(seq) 
     start = 0
-    end = 0     
-    #for char in sequence:
-     #   if char != '_' :
-      #      end = end + 1 
-       # else :
-        #    start = start + 1
-         #   end = start 
+    end = 0
+    i = 0
+    char_to_keep = ''
+    string_to_keep = list()
+    dict_valeu = tuple()
+    for i in range(0,len(sequence)-1) :
+        if sequence[i] != '_' :
+            if len(char_to_keep) == 0 :
+                start = i
+            char_to_keep = char_to_keep+(sequence[i])
+        else :
+            if len(char_to_keep) != 0 :
+                #string_to_keep.append(char_to_keep)
+                end = i
+                dict_value = (char_to_keep,start,end)
+                new_record.setdefault(key, []).append(dict_value)
+                char_to_keep = ''
+    #v = (''.join(''.join(val)) for val in new_record[key])
+    #outFile.write(">" + key + " | " + v)
+        
+    #SeqIO.write(, outFile, 'fasta')
+
+
+    
+
