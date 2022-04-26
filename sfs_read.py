@@ -25,7 +25,6 @@ inFile.close()
 
 
 new_record = dict()
-outCSV = open('middle_file.csv', 'w')
 outFile = open('non_specific_read.fa', 'w')
 record_dict = SeqIO.to_dict(SeqIO.parse(sys.argv[2], "fastq"))
 for key, value in record_dict.items() :
@@ -59,8 +58,13 @@ for key, value in record_dict.items() :
     #v = (''.join(''.join(val)) for val in new_record[key])
     #outFile.write(">" + key + " | " + v)
         
-    #SeqIO.write(, outFile, 'fasta')
+    #SeqIO.write(new_record, outFile, 'fasta')
 
+for k, v in new_record.items() :
+    for single in v:
+        outFile.write(">%s-%i-%i \n"
+        % (k, single[1], single[2]))
+        outFile.write("%s \n" % (single[0]))
 
     
 
