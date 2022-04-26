@@ -25,7 +25,7 @@ inFile.close()
 
 
 new_record = dict()
-outFile = open('non_specific_read.fa', 'w')
+outFile_fa = open('non_specific_read.fa', 'w')
 record_dict = SeqIO.to_dict(SeqIO.parse(sys.argv[2], "fastq"))
 for key, value in record_dict.items() :
     sequence = ''
@@ -62,9 +62,13 @@ for key, value in record_dict.items() :
 
 for k, v in new_record.items() :
     for single in v:
-        outFile.write(">%s-%i-%i \n"
+        outFile_fa.write(">%s-%i-%i \n"
         % (k, single[1], single[2]))
-        outFile.write("%s \n" % (single[0]))
+        outFile_fa.write("%s \n" % (single[0]))
 
+outFile_fq = open("non_specific_read.fq", "w")
+for r in SeqIO.parse("non_specific_read.fa", "fasta"):
+    r.letter_annotations["phred_quality"] = [40] * len(r)
+    SeqIO.write(r, outFile_fq, "fastq")
     
 
