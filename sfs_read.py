@@ -27,6 +27,7 @@ inFile.close()
 new_record = dict()
 outFile_fa = open('non_specific_read.fa', 'w')
 record_dict = SeqIO.to_dict(SeqIO.parse(sys.argv[2], "fastq"))
+#Replacing the specific parts of the sequence in FASTQ file with the '-' character
 for key, value in record_dict.items() :
     sequence = ''
     for k, v in sfs_dict.items() :
@@ -43,6 +44,7 @@ for key, value in record_dict.items() :
     char_to_keep = ''
     string_to_keep = list()
     dict_valeu = tuple()
+    #Creating a new dictionary with the non-specific sequences and their position on the read
     for i in range(0,len(sequence)-1) :
         if sequence[i] != '_' :
             if len(char_to_keep) == 0 :
@@ -50,22 +52,19 @@ for key, value in record_dict.items() :
             char_to_keep = char_to_keep+(sequence[i])
         else :
             if len(char_to_keep) != 0 :
-                #string_to_keep.append(char_to_keep)
                 end = i
                 dict_value = (char_to_keep,start,end)
                 new_record.setdefault(key, []).append(dict_value)
                 char_to_keep = ''
-    #v = (''.join(''.join(val)) for val in new_record[key])
-    #outFile.write(">" + key + " | " + v)
-        
-    #SeqIO.write(new_record, outFile, 'fasta')
 
+#Writing a FASTA file with non-specific read to reiterate on them and looking for new specifics 
 for k, v in new_record.items() :
     for single in v:
         outFile_fa.write(">%s-%i-%i \n"
         % (k, single[1], single[2]))
         outFile_fa.write("%s \n" % (single[0]))
 
+#Changing form FASTA to FASTQ with dummys quality 
 outFile_fq = open("non_specific_read.fq", "w")
 for r in SeqIO.parse("non_specific_read.fa", "fasta"):
     r.letter_annotations["phred_quality"] = [40] * len(r)
