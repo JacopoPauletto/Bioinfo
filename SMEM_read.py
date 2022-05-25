@@ -49,7 +49,17 @@ for line in inFile_matches :
         temp = ()   
 
 
+arr = []
+inFile_chr = open(sys.argv[3], "r")
 outFile = open("outFile.sam", "w")
+for line in inFile_chr :
+    if line[0] == ">" :
+        strand, dna, chromosome, ref = line.split()
+        chr, name, strn, val1, len, val2 = chromosome.split(":", 5)
+        outFile.write("%s\t%s\n"
+            % ("@HD", "VN:1.4"))
+        outFile.write("%s\t%s\t%s%i\n"
+            % ("@SQ", "SN:"+strn, "LN:", int(len) ))
 for key, values in SMEM_dict.items() :
     for elements in values :
         count = count + 1
@@ -59,28 +69,28 @@ for key, values in SMEM_dict.items() :
                 k = key+"-"+str(element[7])+"-"+str(element[8])
                 for element in values :
                    if element[2] == "+" :
-                        outFile.write("%s %s %s %s %s %s %s %s %s %s %s \n \n"
+                        outFile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
                         % (k, "0", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
                    else :
-                       outFile.write("%s %s %s %s %s %s %s %s %s %s %s \n \n"
-                        % (k, "16", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
+                       outFile.write("%s\t%s\t%s\t%i\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                        % (k, "16", element[0], int(element[1])+1, "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
                 k = ""
             else :
                 for element in values :
                     if element[2] == "+" :
-                        outFile.write("%s %s %s %s %s %s %s %s %s %s %s \n \n"
+                        outFile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
                          % (key+"-"+str(element[3])+"-"+str(element[4]), "0", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
                     else :
-                        outFile.write("%s %s %s %s %s %s %s %s %s %s %s \n \n"
-                         % (key+"-"+str(element[3])+"-"+str(element[4]), "16", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
+                        outFile.write("%s\t%s\t%s\t%i\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                         % (key+"-"+str(element[3])+"-"+str(element[4]), "16", element[0], int(element[1])+1, "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
     else :
         for element in values :
             if element[2] == "+" :
-                outFile.write("%s %s %s %s %s %s %s %s %s %s %s \n \n"
+                outFile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
                 % (key+"-"+str(element[3])+"-"+str(element[4]), "0", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
             else :
-                outFile.write("%s %s %s %s %s %s %s %s %s %s %s \n \n"
-                % (key+"-"+str(element[3])+"-"+str(element[4]), "16", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
+                outFile.write("%s\t%s\t%s\t%i\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                % (key+"-"+str(element[3])+"-"+str(element[4]), "16", element[0], int(element[1])+1, "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
 
     count = 0
  
