@@ -1,113 +1,90 @@
 import sys
-from Bio import SeqIO 
-from Bio.Seq import Seq
 
-program = sys.argv[0]
-path_to_matches = sys.argv[1]
-path_to_fa = sys.argv[2]
-path_to_chr = sys.argv[3]
-
-tuple_id = ()
-inFile_fa = open(sys.argv[2], "r")
-for record in SeqIO.parse(inFile_fa, "fasta"):
-    tuple_id = tuple_id + ((record.id, record.seq), )
+program = sys.argv[0]                       
+path_to_sfs = sys.argv[1] 
 
 
-SMEM_dict = {}
-temp = ()
-sequence = ""
-seq = ""
-s = ""
+sfs_dict = dict()
+t = tuple()
+read_name = ''
+mykey = list()
+inFile = open(sys.argv[1], "r")
+for line in inFile :
+    id_read, seq, start_position, lenght, n_occurence = line.split()
+    t = (seq, start_position, lenght, n_occurence)
+    if id_read != '*' :
+        read_name = id_read
+        sfs_dict[read_name] = []
+    sfs_dict[read_name].append(t) 
+
+list = []
 count = 0
-inFile_matches = open(sys.argv[1], 'r')
-for line in inFile_matches :
-    a = (line,)
-    temp = temp + a
-    if line[0] == '/' :
-        for element in temp :
-            if element[0] == "S":
-                id, read, len = element.split()
-                readid, startpos, endpos = read.split("-",2)
-                t = (readid,)
-                if readid not in SMEM_dict :
-                    SMEM_dict[readid] = []
-                t = ()
-                for value in tuple_id :
-                    if read in value :
-                        sequence = value[1]
-            elif element[0] == 'E':
-                count = count + 1
-                smemid, start, length, hit, cromosome = element.split()
-                crom, strandAndPoscrom = cromosome.split(":", 1)
-                strand = strandAndPoscrom[0]
-                poscrom = strandAndPoscrom.replace(strand,"")
-                if strand == "-" :
-                    sequence = sequence.reverse_complement()
-                if count == 1 :
-                    for character in range(int(start), int(length)):
-                        seq = seq + sequence[character]
-                    smems = (crom, poscrom, strand, startpos, int(length)-int(start), seq, "norm")
-                    SMEM_dict[readid].append(smems)
-                    seq = ""
-                    s = ""
+char_to_keep = ""
+new_sfs_dict = dict()
+for key, value in sfs_dict.items() :
+    new_sfs_dict[key] = []
+    for element in value :
+        list.append(element) 
+        count = count + 1 
+    start = count
+    first = list[start-1]
+    last = list[0]
+    for el in list :
+        el1 = list[count-1]
+        el2 = list[count-2]
+        if  (start > 1):
+            if count == 1:
+                new_sfs_dict[key].append(a) 
+            if (int(el1[1])+int(el1[2])) >= int(el2[1]) :
+                n_char_to_keep = (int(el2[1])-int(el1[1])) + (int(el2[2])-int(el1[2]))  
+                sequence = el2[0]
+                start_seq = first[0]
+                pos = first[1]
+                for index in range((len(sequence)-n_char_to_keep), len(sequence)) :
+                    char_to_keep = char_to_keep + sequence[index]
+                start_seq = start_seq + char_to_keep
+                a = (start_seq, pos, len(start_seq), first[3])
+            else :
+                if el1 == first :
+                    b = el1
+                    new_sfs_dict[key].append(b)
+                    first = el2
+                    char_to_keep = ""
+                elif el2 == last :
+                    e = el2 
+                    new_sfs_dict[key].append(e)
+                    char_to_keep = ""
                 else :
-                    if strand == "-" :
-                        sequence = sequence.reverse_complement()
-                    for character in range(int(start), int(length)):
-                        seq = seq + sequence[character]
-                    smems = (crom, poscrom, strand, start, int(length)-int(start), seq, "exc", startpos, length)
-                    SMEM_dict[readid].append(smems)
-                    seq = ""
-                    s = ""
-            
-        sequence = ""
-        count = 0
-        temp = ()   
-
-
-
-arr = []
-inFile_chr = open(sys.argv[3], "r")
-outFile = open("outFile.sam", "w")
-for line in inFile_chr :
-    if line[0] == ">" :
-        strand, dna, chromosome, ref = line.split()
-        chr, name, strn, val1, len, val2 = chromosome.split(":", 5)
-        outFile.write("%s\t%s\n"
-            % ("@HD", "VN:1.4"))
-        outFile.write("%s\t%s\t%s%i\n"
-            % ("@SQ", "SN:"+strn, "LN:", int(len) ))
-for key, values in SMEM_dict.items() :
-    for elements in values :
-        count = count + 1
-    if count > 1:
-            element = values[count-1]
-            if element[6] == "exc" :
-                k = key+"-"+str(element[7])+"-"+str(element[8])
-                for element in values :
-                   if element[2] == "+" :
-                        outFile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
-                        % (k, "0", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
-                   else :
-                       outFile.write("%s\t%s\t%s\t%i\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
-                        % (k, "16", element[0], int(element[1]), "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
-                k = ""
-            else :
-                for element in values :
-                    if element[2] == "+" :
-                        outFile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
-                         % (key+"-"+str(element[3])+"-"+str(element[4]), "0", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
-                    else :
-                        outFile.write("%s\t%s\t%s\t%i\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
-                         % (key+"-"+str(element[3])+"-"+str(element[4]), "16", element[0], int(element[1]), "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
-    else :
-        for element in values :
-            if element[2] == "+" :
-                outFile.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
-                % (key+"-"+str(element[3])+"-"+str(element[4]), "0", element[0], element[1], "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
-            else :
-                outFile.write("%s\t%s\t%s\t%i\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
-                % (key+"-"+str(element[3])+"-"+str(element[4]), "16", element[0], int(element[1]), "255", str(element[4])+"M", "*", "0", "0", element[5], "*"))
-
+                    new_sfs_dict[key].append(a)
+                    first = el2
+                    a = ()
+                    char_to_keep = ""
+        elif  (start == 1) :
+            c = el1
+            new_sfs_dict[key].append(c)
+        count = count - 1 
+        
+    
     count = 0
- 
+    list = []
+    char_to_keep = ""
+
+"""
+
+outSFS = open('outSFS.txt', 'w')
+for key, value in new_sfs_dict.items() :
+    outSFS.write(">%s-%s \n"
+        % (key, value))
+
+"""
+
+new_sfs_out = open("new_solution_out.sfs", "w")
+for key, value in new_sfs_dict.items():
+    for element in value :
+        if element == value[0] :
+            new_sfs_out.write("%s\t%s\t%s\t%s\t%s \n"
+            % (key, element[0], element[1], element[2], element[3]))
+        else :
+            new_sfs_out.write("%s\t%s\t%s\t%s\t%s \n"
+            % ("*", element[0], element[1], element[2], element[3]))
+        
