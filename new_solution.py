@@ -3,7 +3,7 @@ import sys
 program = sys.argv[0]                       
 path_to_sfs = sys.argv[1] 
 
-
+#create a dictionary with the read id as keys 
 sfs_dict = dict()
 t = tuple()
 read_name = ''
@@ -17,6 +17,7 @@ for line in inFile :
         sfs_dict[read_name] = []
     sfs_dict[read_name].append(t) 
 
+#for each read checks if its specifics overlap and join them in the case 
 list = []
 count = 0
 char_to_keep = ""
@@ -77,7 +78,7 @@ for key, value in new_sfs_dict.items() :
         % (key, value))
 
 """
-
+#write the new sfs file 
 new_sfs_out = open("new_solution_out.sfs", "w")
 for key, value in new_sfs_dict.items():
     for element in value :
