@@ -18,7 +18,7 @@ Cerca le stringhe specifiche del sample nell'indice
 ```
 Uniscie tutte le specifiche relative ad una read che si sovrappongono creandono una sola 
 ```
-python new_solution.py solution_bath_0.sfs
+python join_specifics.py solution_bath_0.sfs
 ```
 Crea un FASTA contenente tutte porzioni non-specifiche con la loro posizione nelle read
 ```
