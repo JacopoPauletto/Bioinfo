@@ -28,7 +28,7 @@ Scarta tutte le read che contengono una sola non-specifica
 ```
 python discard_singleton non_specific_read.fa
 ```
-Scarta tutte le read con una non-specifica di lunghezza minore di un valore "n"
+Scarta tutte le read con una non-specifica di lunghezza minore di un valore [n]
 ```
 python discard.py disc_singleton_non_spec.fa n 
 ```
@@ -40,9 +40,13 @@ Trova i matches delle non-specifiche sull'indice del genoma
 ```
 bwa fastmap gen disc_non_specific.fa > bwa_fastmap_gen.matches
 ```
-Crea un file SAM relativo ai matches 
+Prende il file dei macthes e scarta tutte le read che hanno un solo match e tutte quelle che hanno due o più matches ma che si trovano ad una distanaza inferiore di un valore [n]
 ```
-python SMEM_read.py bwa_fastmap_gen.matches disc_non_specific.fa genome.fa
+python SMEM_clear.py bwa_fastmap_gen.matches n 
+```
+Crea un file SAM relativo ai matches filtrati 
+```
+python SMEM_read.py bwa_cleared.matches disc_non_specific.fa genome.fa
 ```
 Trasforma il file SAM nel rispettivo file BAM
 ```
